@@ -1,34 +1,6 @@
-/*
-	placeholder: Anthony Armstrong
-		version: 1.0.0
-		last modified: 2013-01-04
-*/
-
 (function($){
 
 	/*/// Placeholder fields ///*/
-
-	$.fn.placeholder = function(method) {
-
-		// has a method has been passed in?
-		if (methods[method]) {
-
-			// call this method with arguments that may have been passed in
-			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-
-		// if just options have been passed in, or no method...
-		} else if (typeof method === 'object' || !method) {
-
-			// call the init method
-			return methods.init.apply(this, arguments);
-
-		} else {
-
-			// throw an error
-			$.error( 'Method ' +  method + ' does not exist on jQuery.placeholder');
-		}
-
-	};
 
 	var properties = {
 		fields : []
@@ -59,8 +31,17 @@
 				properties.fields = this.find('*[placeholder]');
 
 				// bind events
-				properties.fields.bind('focus.placeholder', methods.hide);
+				//properties.fields.bind('focus.placeholder', methods.hide);
+				properties.fields.bind('keyup.placeholder', methods.check_length);
+				properties.fields.bind('keydown.placeholder', methods.clear_input);
 				properties.fields.bind('blur.placeholder', methods.show);
+				properties.fields.bind('focus.placeholder', function() {
+					if ($(this).val() == $(this).attr('placeholder')) {
+						var range = $(this)[0].createTextRange();
+			            range.move('character', 0);
+			            range.select();
+			        }
+				});
 
 				// show
 				methods.show(true);
@@ -87,15 +68,19 @@
 
 			} else {
 
+				var input = all_fields.type != undefined ? $(this) : all_fields;
+				
 				// If the current value is blank
-				if ($(this).val() == ' ' || $(this).val() == '') {
+				if (input.val().length <= 0) {
 
 					// Put original value in field
-					$(this).val($(this).attr('placeholder'));
+					input.val(input.attr('placeholder'));
 
-					if ($(this).attr('type') == 'password') {
-						methods.password_overlay($(this));
+					if (input.attr('type') == 'password') {
+						methods.password_overlay(input);
 					}
+
+					input.focus();
 				}
 
 			}
@@ -109,20 +94,43 @@
 				for (var i = 0; i < properties.fields.length; i++) {
 
 					var field = $(properties.fields[i]);
-					field.val(' ');
+					field.val('');
 
 				}
 
 			} else {
 
-				// If th current value is not the 'placeholder' value
-				if ($(this).val() == $(this).attr('placeholder')) {
+				var input = all_fields || $(this);
+
+				// If the current value is the 'placeholder' value
+				if (input.val() == input.attr('placeholder')) {
 
 					// remove value from field
-					$(this).val(' ');
+					input.val('');
+					console.log('clear field');
 				}
 			}
 			
+		},
+
+		clear_input: function(event) {
+
+			if (event.keyCode != 9) {
+
+				methods.hide($(this));
+
+			}
+
+		},
+
+		check_length: function(event) {
+
+			if (event.keyCode != 9) {
+	
+				methods.show($(this));
+			
+			}
+
 		},
 
 		password_overlay: function(field) {
@@ -135,21 +143,53 @@
 			var styles = field.getStyleObject();
 			
 			// build span
-			var span = $('<span>' + field.attr('placeholder') + '</span>');
-			span.addClass('password');
-			span.css(styles);
+			var input = $('<input type="type" value="' + field.attr('placeholder') + '" />');
+			input.addClass('password');
+			input.css(styles);
 
-			span.insertAfter(field);
+			input.insertAfter(field);
 			field.css('display', 'none');
 
-			span.bind('focus', function() {
-				span.css('display', 'none');
+			input.bind('focus.placeholder', function() {
+				if (input.val() == field.attr('placeholder')) {
+					var range = $(this)[0].createTextRange();
+		            range.move('character', 0);
+		            range.select();
+		        }
+			});
+
+			input.bind('keydown.placeholder', function() {
+				input.css('display', 'none');
 				field.css('display', 'block');
+				field.val('');
 				field.focus();
 			});
 			
 		}
 
 	};
+
+	$.fn.placeholder = function(method) {
+
+		// has a method has been passed in?
+		if (methods[method]) {
+
+			// call this method with arguments that may have been passed in
+			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+
+		// if just options have been passed in, or no method...
+		} else if (typeof method === 'object' || !method) {
+
+			// call the init method
+			return methods.init.apply(this, arguments);
+
+		} else {
+
+			// throw an error
+			$.error( 'Method ' +  method + ' does not exist on jQuery.placeholder');
+		}
+
+	};
+
 
 })(jQuery);
