@@ -2,6 +2,28 @@
 
 	/*/// Placeholder fields ///*/
 
+	$.fn.placeholder = function(method) {
+
+		// has a method has been passed in?
+		if (methods[method]) {
+
+			// call this method with arguments that may have been passed in
+			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+
+		// if just options have been passed in, or no method...
+		} else if (typeof method === 'object' || !method) {
+
+			// call the init method
+			return methods.init.apply(this, arguments);
+
+		} else {
+
+			// throw an error
+			$.error( 'Method ' +  method + ' does not exist on jQuery.placeholder');
+		}
+
+	};
+
 	var properties = {
 		fields : []
 	}
@@ -140,7 +162,7 @@
 				placeholder value (because the type attr cannot be changed)
 			*/
 
-			var styles = field.getStyleObject();
+			var styles = methods.computed_styles(field);
 			
 			// build span
 			var input = $('<input type="type" value="' + field.attr('placeholder') + '" />');
@@ -165,31 +187,47 @@
 				field.focus();
 			});
 			
+		},
+
+		/* START: Credit to 'http://upshots.org/?p=112' for getStyleObject */
+
+		camelize: function(a,b) {
+			return b.toUpperCase();
+		},
+
+		computed_styles: function(element) {
+
+			var dom = element;
+        	var style;
+        	var returns = {};
+
+	        if (window.getComputedStyle) {
+	           
+	            style = window.getComputedStyle(dom, null);
+
+	            for (var i = 0, l = style.length; i < l; i++) {
+	                var prop = style[i];
+	                var camel = prop.replace(/\-([a-z])/g, methods.camelize);
+	                var val = style.getPropertyValue(prop);
+	                returns[camel] = val;
+	            };
+
+	            return returns;
+	        }
+
+	        if (style = dom.currentStyle) {
+	            for(var prop in style){
+	                returns[prop] = style[prop];
+	            }
+
+	            return returns;
+	        }
+
+	        return returns;
 		}
 
-	};
-
-	$.fn.placeholder = function(method) {
-
-		// has a method has been passed in?
-		if (methods[method]) {
-
-			// call this method with arguments that may have been passed in
-			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-
-		// if just options have been passed in, or no method...
-		} else if (typeof method === 'object' || !method) {
-
-			// call the init method
-			return methods.init.apply(this, arguments);
-
-		} else {
-
-			// throw an error
-			$.error( 'Method ' +  method + ' does not exist on jQuery.placeholder');
-		}
+		/* END: Credit to 'http://upshots.org/?p=112' for getStyleObject */
 
 	};
-
 
 })(jQuery);
