@@ -198,12 +198,12 @@
 		computed_styles: function(element) {
 
 			var dom = element;
-        	var style;
+        	var style = null;
         	var returns = {};
 
 	        if (window.getComputedStyle) {
 	           
-	            style = window.getComputedStyle(dom, null);
+	            style = window.getComputedStyle(dom[0], null);
 
 	            for (var i = 0, l = style.length; i < l; i++) {
 	                var prop = style[i];
