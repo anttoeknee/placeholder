@@ -129,7 +129,6 @@
 
 					// remove value from field
 					input.val('');
-					console.log('clear field');
 				}
 			}
 			
@@ -158,14 +157,18 @@
 		password_overlay: function(field) {
 
 			/* 
-				type is password so add a span over the field with the 
+				type is password so add an input over the field with the 
 				placeholder value (because the type attr cannot be changed)
 			*/
 
 			var styles = methods.computed_styles(field);
-			
-			// build span
+			var classes = field.attr('class') != undefined ? field.attr('class').split(' ') : '';
+
+			// build input
 			var input = $('<input type="type" value="' + field.attr('placeholder') + '" />');
+			for (_class in classes) {
+				input.addClass(classes[_class]);
+			}
 			input.addClass('password');
 			input.css(styles);
 
