@@ -1,6 +1,10 @@
-(function($){
+/*
+	placeholder: Anthony Armstrong
+		version: 1.2.0
+		last modified: 2013-02-13
+*/
 
-	/*/// Placeholder fields ///*/
+(function($){
 
 	$.fn.placeholder = function(method) {
 
@@ -80,12 +84,16 @@
 				for (var i = 0; i < properties.fields.length; i++) {
 
 					var field = $(properties.fields[i]);
-					field.val(field.attr('placeholder'));
 
-					if (field.attr('type') == 'password') {
-						methods.password_overlay(field);
+					// if field is empty...
+					if (field.val() == '') {
+						field.val(field.attr('placeholder'));
+
+						if (field.attr('type') == 'password') {
+							methods.password_overlay(field);
+						}
 					}
-
+					
 				} 
 
 			} else {
